@@ -5,7 +5,11 @@ const CollectionWatcher = require('./CollectionWatcher');
 function exit() {
   process.exit(1);
 }
-
+/**
+ * Util to receive mongo collection changes, in realtime using mongo `ChangeStream`.
+ * @param {Array} watchedColls - collection names to be watched for changes
+ * @param {Function} collListener  - Common Listener to receive changes by watcher
+ */
 module.exports = async function(watchedColls, collListener) {
   try {
     const db = await getDB();
