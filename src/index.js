@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const Log = require('lil-logger').getLogger(__filename);
 const { getDB } = require('native-mongo-util');
 const CollectionWatcher = require('./CollectionWatcher');
@@ -25,10 +26,10 @@ module.exports = async function(watchedColls, collListener) {
 
     Log.debug({ msg: 'Watched collections: ', arg1: watchedColls });
 
-    for (const coll of watchedColls) {
+    Promise.map(watchedColls, coll => {
       const watcher = new CollectionWatcher(coll, collListener);
-      await watcher.init();
-    }
+      return watcher.init();
+    });
   } catch (err) {
     console.log('catch err---', err);
     Log.error({ error: err, msg: 'Error occurred while watching' });
