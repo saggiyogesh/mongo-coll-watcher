@@ -1,7 +1,7 @@
 {
   "name": "mongo-coll-watcher",
   "version": "1.0.0",
-  "description": "",
+  "description": "mongodb change watcher using changes streams, having resumable capabilities.",
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint src/**/"
