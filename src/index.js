@@ -19,6 +19,8 @@ module.exports = async function(watchedColls, collListener) {
       exit();
     });
 
+    Log.debug({ msg: 'Watched collections: ', arg1: watchedColls });
+
     for (const coll of watchedColls) {
       const watcher = new CollectionWatcher(coll, collListener);
       await watcher.init();

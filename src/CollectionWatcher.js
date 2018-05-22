@@ -14,32 +14,38 @@ module.exports = class CollectionWatcher {
   }
 
   async init() {
-    const previousToken = await getCollection(resumeTokenColl).findOne({
-      ns: this.getNS()
-    });
+    const ns = this.getNS();
+    Log.debug({ msg: 'Init watcher: ' + ns });
+    const previousToken = await getCollection(resumeTokenColl).findOne({ ns });
     let opts = {};
     if (previousToken) {
       opts = { resumeAfter: previousToken.resumeToken };
+      Log.debug({ msg: `Found previousToken, id: ${previousToken._id}, ns: ${ns}` });
     }
     this.changeStream = getCollection(this.collectionName).watch(opts);
     this.changeStream.on('change', this.onChange.bind(this));
   }
 
   onChange(change) {
-    console.log('in change');
+    const ns = this.getNS();
     const {
       _id,
       operationType,
       ns: { db, coll },
       documentKey
     } = change;
-    console.log('onchange--', operationType, coll, documentKey);
+    Log.debug({ msg: 'onchange, ns: ' + ns, arg1: change });
+    try {
+      this.collListener({ dbName: db, collectionName: coll, type: operationType, id: documentKey });
 
-    this.collListener({ dbName: db, collectionName: coll, type: operationType, id: documentKey });
-
-    const ns = this.getNS();
-    getCollection(resumeTokenColl)
-      .updateOne({ ns }, { $set: { resumeToken: _id, ns, date: new Date() } }, { upsert: true })
-      .catch(e => Log.error({ error: e, msg: 'Error occurred while saving resume token' }));
+      getCollection(resumeTokenColl)
+        .updateOne({ ns }, { $set: { resumeToken: _id, ns, date: new Date() } }, { upsert: true })
+        .then(() => Log.debug({ msg: 'Resume token updated, ns: ' + ns }))
+        .catch(e =>
+          Log.error({ error: e, msg: 'Error occurred while saving resume token, ns: ' + ns })
+        );
+    } catch (err) {
+      Log.error({ error: err, msg: 'Error occurred while calling Listener for ns' + ns });
+    }
   }
 };
