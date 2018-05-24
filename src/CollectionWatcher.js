@@ -32,11 +32,20 @@ module.exports = class CollectionWatcher {
       _id,
       operationType,
       ns: { db, coll },
-      documentKey
+      documentKey,
+      updateDescription,
+      fullDocument
     } = change;
     Log.debug({ msg: 'onchange, ns: ' + ns, arg1: change });
     try {
-      this.collListener({ dbName: db, collectionName: coll, type: operationType, id: documentKey });
+      this.collListener({
+        updateDescription,
+        fullDocument,
+        dbName: db,
+        collectionName: coll,
+        type: operationType,
+        id: documentKey
+      });
 
       getCollection(resumeTokenColl)
         .updateOne({ ns }, { $set: { resumeToken: _id, ns, date: new Date() } }, { upsert: true })
