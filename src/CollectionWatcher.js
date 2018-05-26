@@ -44,7 +44,7 @@ module.exports = class CollectionWatcher {
         dbName: db,
         collectionName: coll,
         type: operationType,
-        id: documentKey
+        id: documentKey._id
       });
 
       getCollection(resumeTokenColl)
