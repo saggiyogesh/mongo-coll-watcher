@@ -12,15 +12,15 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "lil-logger": "github:saggiyogesh/lil-logger",
-    "native-mongo-util": "^1.0.5"
+    "native-mongo-util": "^1.0.6"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-config-lil": "^1.0.3",
+    "eslint-config-lil": "^1.0.4",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-xo-space": "^0.18.0",
     "eslint-plugin-prettier": "^2.6.0",
-    "nodemon": "^1.17.4",
-    "prettier": "^1.12.1"
+    "nodemon": "^1.17.5",
+    "prettier": "^1.13.4"
   }
 }
