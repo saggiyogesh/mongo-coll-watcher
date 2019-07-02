@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
-const Log = require('lil-logger').getLogger(__filename);
-const { getDB } = require('native-mongo-util');
+const Log = require('logger3000').getLogger(__filename);
+const { connect } = require('native-mongo-util');
 const CollectionWatcher = require('./CollectionWatcher');
 
 function exit() {
@@ -11,9 +11,10 @@ function exit() {
  * @param {Array} watchedColls - collection names to be watched for changes
  * @param {Function} collListener  - Common Listener to receive changes by watcher
  */
+
 module.exports = async function(watchedColls, collListener) {
   try {
-    const db = await getDB();
+    const db = await connect();
     db.on('close', e => {
       Log.error({ error: e, msg: 'Mongo connected closed' });
       exit();

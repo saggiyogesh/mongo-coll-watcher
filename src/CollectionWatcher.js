@@ -1,4 +1,4 @@
-const Log = require('lil-logger').getLogger(__filename);
+const Log = require('logger3000').getLogger(__filename);
 const { getDBName, getCollection } = require('native-mongo-util');
 
 const resumeTokenColl = '_resumeTokens';
@@ -22,6 +22,7 @@ module.exports = class CollectionWatcher {
       opts = { resumeAfter: previousToken.resumeToken };
       Log.debug({ msg: `Found previousToken, id: ${previousToken._id}, ns: ${ns}` });
     }
+
     this.changeStream = getCollection(this.collectionName).watch(opts);
     this.changeStream.on('change', this.onChange.bind(this));
   }
