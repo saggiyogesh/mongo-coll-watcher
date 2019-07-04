@@ -1,39 +1,24 @@
 const Promise = require('bluebird');
 const Log = require('logger3000').getLogger(__filename);
-const { connect } = require('native-mongo-util');
 const CollectionWatcher = require('./CollectionWatcher');
-
-function exit() {
-  process.exit(1);
-}
 /**
  * Util to receive mongo collection changes, in realtime using mongo `ChangeStream`.
+ * Expects that db is connected using `native-mongo-util` package.
+ *
  * @param {Array} watchedColls - collection names to be watched for changes
  * @param {Function} collListener  - Common Listener to receive changes by watcher
  */
 
 module.exports = async function(watchedColls, collListener) {
   try {
-    const db = await connect();
-    db.on('close', e => {
-      Log.error({ error: e, msg: 'Mongo connected closed' });
-      exit();
-    });
-    db.on('error', e => {
-      Log.error({ error: e, msg: 'Mongo connected error' });
-      console.log('error---', e);
-      exit();
-    });
-
     Log.debug({ msg: 'Watched collections: ', arg1: watchedColls });
 
-    Promise.map(watchedColls, coll => {
+    await Promise.map(watchedColls, coll => {
       const watcher = new CollectionWatcher(coll, collListener);
       return watcher.init();
     });
   } catch (err) {
-    console.log('catch err---', err);
     Log.error({ error: err, msg: 'Error occurred while watching' });
-    exit();
+    process.exit(1);
   }
 };
