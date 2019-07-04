@@ -11,8 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.5.5",
-    "logger3000": "0.1.0",
-    "native-mongo-util": "^2.1.0"
+    "logger3000": "0.1.1",
+    "native-mongo-util": "^2.1.1"
   },
   "devDependencies": {
     "eslint": "^6.0.1",
