@@ -1,6 +1,8 @@
 const Log = require('logger3000').getLogger(__filename);
 const { getDBName, getCollection } = require('native-mongo-util');
 
+const { save } = require('./store');
+
 const resumeTokenColl = '_resumeTokens';
 module.exports = class CollectionWatcher {
   constructor(collectionName, collListener) {
@@ -25,37 +27,66 @@ module.exports = class CollectionWatcher {
 
     this.changeStream = getCollection(this.collectionName).watch(opts);
     this.changeStream.on('change', this.onChange.bind(this));
+
+    this.changeStream.on('end', () => {
+      Log.debug({ msg: 'change stream ended', arg1: this.getNS() });
+    });
+
+    this.changeStream.on('close', () => {
+      Log.debug({ msg: 'change stream closed', arg1: this.getNS() });
+    });
+
+    this.changeStream.on('error', err => {
+      Log.error({ error: err, arg1: this.getNS() });
+      if (err.code === 40615) {
+        Log.info({
+          msg:
+            'Error: Retry to initiate changeStream after deleting resume token for ns: ' +
+            this.getNS()
+        });
+      }
+    });
+
+    return { ns, changeStream: this.changeStream };
   }
 
   onChange(change) {
-    const ns = this.getNS();
-    const {
-      _id,
-      operationType,
-      ns: { db, coll },
-      documentKey,
-      updateDescription,
-      fullDocument
-    } = change;
-    Log.debug({ msg: 'onchange, ns: ' + ns, arg1: change });
-    try {
-      this.collListener({
-        updateDescription,
-        fullDocument,
-        dbName: db,
-        collectionName: coll,
-        type: operationType,
-        id: documentKey._id
+    if (change.operationType === 'invalidate') {
+      Log.info({
+        msg: 'Error: Got operationType `invalidate`, collection is renamed or dropped.',
+        arg1: this.getNS()
       });
+      // closeAllChangeStreams(this.getNS())
+      //   .then(() => process.exit(0))
+      //   .catch(e => {
+      //     Log.error({ error: e, msg: 'Error occurred while closing all change streams' });
+      //     process.exit(0);
+      //   });
+    } else {
+      const ns = this.getNS();
+      const {
+        _id,
+        operationType,
+        ns: { db, coll },
+        documentKey,
+        updateDescription,
+        fullDocument
+      } = change;
+      Log.debug({ msg: 'onchange, ns: ' + ns, arg1: change });
+      try {
+        this.collListener({
+          updateDescription,
+          fullDocument,
+          dbName: db,
+          collectionName: coll,
+          type: operationType,
+          id: documentKey._id
+        });
 
-      getCollection(resumeTokenColl)
-        .updateOne({ ns }, { $set: { resumeToken: _id, ns, date: new Date() } }, { upsert: true })
-        .then(() => Log.debug({ msg: 'Resume token updated, ns: ' + ns }))
-        .catch(e =>
-          Log.error({ error: e, msg: 'Error occurred while saving resume token, ns: ' + ns })
-        );
-    } catch (err) {
-      Log.error({ error: err, msg: 'Error occurred while calling Listener for ns' + ns });
+        save(ns, _id);
+      } catch (err) {
+        Log.error({ error: err, msg: 'Error occurred while calling Listener for ns' + ns });
+      }
     }
   }
 };
