@@ -26,7 +26,7 @@ exports.persistToken = function() {
       .updateOne({ ns }, { $set: { resumeToken: token, ns, date: new Date() } }, { upsert: true })
       .then(() => {
         exports.reset(ns);
-        Log.debug({ msg: 'Resume token saveed in db, ns: ' + ns });
+        Log.debug({ msg: 'Resume token saved in db, ns: ' + ns });
       })
       .catch(e =>
         Log.error({ error: e, msg: 'Error occurred while saving resume token, ns: ' + ns })
