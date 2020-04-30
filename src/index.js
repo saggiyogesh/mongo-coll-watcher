@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const Log = require('logger3000').getLogger(__filename);
 const CollectionWatcher = require('./CollectionWatcher');
-const { init } = require('./store');
+const { init, persistToken } = require('./store');
 const { store: storeWatchers } = require('./watchers');
 
 /**
@@ -27,3 +27,5 @@ module.exports = async function(watchedColls, collListener) {
     process.exit(1);
   }
 };
+
+exports.persistToken = persistToken;

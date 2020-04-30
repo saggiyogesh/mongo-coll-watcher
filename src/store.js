@@ -35,7 +35,9 @@ exports.persistToken = function() {
 };
 
 exports.init = function() {
-  schedule.scheduleJob(`*/${RESUME_TOKEN_PERSIST_INTERVAL} * * * * *`, function() {
-    exports.persistToken();
-  });
+  // If env var RESUME_TOKEN_PERSIST_INTERVAL is not passed, resume tokens will not persist periodically
+  parseInt(RESUME_TOKEN_PERSIST_INTERVAL) &&
+    schedule.scheduleJob(`*/${RESUME_TOKEN_PERSIST_INTERVAL} * * * * *`, function() {
+      exports.persistToken();
+    });
 };
