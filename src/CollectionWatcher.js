@@ -36,13 +36,13 @@ module.exports = class CollectionWatcher {
       Log.debug({ msg: 'change stream closed', arg1: this.getNS() });
     });
 
-    this.changeStream.on('error', err => {
+    this.changeStream.on('error', (err) => {
       Log.error({ error: err, arg1: this.getNS() });
       if (err.code === 40615) {
         Log.info({
           msg:
             'Error: Retry to initiate changeStream after deleting resume token for ns: ' +
-            this.getNS()
+            this.getNS(),
         });
       }
     });
@@ -54,7 +54,7 @@ module.exports = class CollectionWatcher {
     if (change.operationType === 'invalidate') {
       Log.info({
         msg: 'Error: Got operationType `invalidate`, collection is renamed or dropped.',
-        arg1: this.getNS()
+        arg1: this.getNS(),
       });
       // closeAllChangeStreams(this.getNS())
       //   .then(() => process.exit(0))
@@ -70,9 +70,9 @@ module.exports = class CollectionWatcher {
         ns: { db, coll },
         documentKey,
         updateDescription,
-        fullDocument
+        fullDocument,
       } = change;
-      Log.debug({ msg: 'onchange, ns: ' + ns, arg1: change });
+      Log.debug({ msg: 'onchange, ns: ' + ns, arg1: { operationType, documentKey } });
       try {
         this.collListener({
           updateDescription,
@@ -80,7 +80,7 @@ module.exports = class CollectionWatcher {
           dbName: db,
           collectionName: coll,
           type: operationType,
-          id: documentKey._id
+          id: documentKey._id,
         });
 
         save(ns, _id);

@@ -11,11 +11,11 @@ const { store: storeWatchers } = require('./watchers');
  * @param {Array} watchedColls - collection names to be watched for changes
  * @param {Function} collListener  - Common Listener to receive changes by watcher
  */
-module.exports = async function(watchedColls, collListener) {
+module.exports = async function (watchedColls, collListener) {
   try {
     Log.debug({ msg: 'Watched collections: ', arg1: watchedColls });
 
-    const watchers = await Promise.map(watchedColls, coll => {
+    const watchers = await Promise.map(watchedColls, (coll) => {
       const watcher = new CollectionWatcher(coll, collListener);
       return watcher.init();
     });

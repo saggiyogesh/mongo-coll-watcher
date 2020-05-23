@@ -10,16 +10,16 @@ const { RESUME_TOKEN_PERSIST_INTERVAL = 30 /* 30 sec */ } = process.env;
 const resumeTokenColl = '_resumeTokens';
 const _obj = {};
 
-exports.save = function(ns, token) {
+exports.save = function (ns, token) {
   Log.debug({ msg: 'store save', arg1: ns, arg2: token });
   _obj[ns] = token;
 };
 
-exports.reset = function(ns) {
+exports.reset = function (ns) {
   delete _obj[ns];
 };
 
-exports.persistToken = function() {
+exports.persistToken = function () {
   for (const [ns, token] of Object.entries(_obj)) {
     Log.debug({ msg: 'persistToken', arg1: ns, arg2: token });
     getCollection(resumeTokenColl)
@@ -28,16 +28,16 @@ exports.persistToken = function() {
         exports.reset(ns);
         Log.debug({ msg: 'Resume token saved in db, ns: ' + ns });
       })
-      .catch(e =>
+      .catch((e) =>
         Log.error({ error: e, msg: 'Error occurred while saving resume token, ns: ' + ns })
       );
   }
 };
 
-exports.init = function() {
+exports.init = function () {
   // If env var RESUME_TOKEN_PERSIST_INTERVAL is not passed, resume tokens will not persist periodically
   parseInt(RESUME_TOKEN_PERSIST_INTERVAL) &&
-    schedule.scheduleJob(`*/${RESUME_TOKEN_PERSIST_INTERVAL} * * * * *`, function() {
+    schedule.scheduleJob(`*/${RESUME_TOKEN_PERSIST_INTERVAL} * * * * *`, function () {
       exports.persistToken();
     });
 };
