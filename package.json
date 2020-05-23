@@ -1,6 +1,6 @@
 {
   "name": "mongo-coll-watcher",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "mongodb change watcher using changes streams, having resumable capabilities.",
   "main": "src/index.js",
   "scripts": {
