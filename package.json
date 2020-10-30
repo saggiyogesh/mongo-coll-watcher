@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.7.2",
-    "logger3000": "0.1.1",
+    "logger3000": "0.2.0",
     "native-mongo-util": "^3.0.0",
     "node-schedule": "^1.3.2"
   },
